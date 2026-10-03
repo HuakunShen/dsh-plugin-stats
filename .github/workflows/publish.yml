@@ -1,69 +1,168 @@
-# Publishes @dsh-stats/core, @dsh-stats/pricing, and dsh-plugin-stats to the
-# npm registry through npm Trusted Publishing: the OIDC token minted by
-# GitHub Actions identifies this repository against the trusted publisher
-# configured on npmjs.com, so no npm token secret is needed. Requires
-# `permissions.id-token: write`.
+# Publishes this workspace's three npm packages. One tag runs the gates and
+# ships exactly one artifact — the same release shape the other Harness plugin
+# lines use:
 #
-# npm side (each package -> Settings -> Trusted Publisher) must name this
-# repository and this workflow filename, with the "Allow npm publish" action
-# enabled — leaving it unchecked only permits `npm stage publish`, which this
-# workflow does not use.
+#   core-v0.1.0     -> @dsh-stats/core      (source-only, nothing to build)
+#   pricing-v0.1.0  -> @dsh-stats/pricing   (source-only, nothing to build)
+#   plugin-v0.1.0   -> dsh-plugin-stats     (self-contained build)
 #
-# Triggers: a GitHub Release marked as published, or a manual run
-# (Actions -> publish -> Run workflow). Bump `version` in each package.json
-# first: npm rejects a version that already exists. Publish order matters —
-# core and pricing first, the bundle last — and every `npm publish` runs
-# with `--provenance` so the registry records the build attestation.
+# Three explicit jobs rather than one matrix: a job-level `if` cannot read the
+# `matrix` context, so a matrix would silently skip every entry. Each job's
+# condition reads only `github` and `inputs`, which are available there.
+#
+# Auth is npm trusted publishing (OIDC), not a token: each package's Trusted
+# Publisher settings on npmjs.com must name this repository, this workflow
+# file, and the `npm` environment declared below. The OIDC claim is also what
+# produces the public `--provenance` attestation.
+#
+# A name that does not exist on npm yet cannot carry trusted-publisher
+# settings, so its very first version is published manually (see
+# PUBLISHING.md); every release after that goes through here.
 name: publish
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'core-v*'
+      - 'pricing-v*'
+      - 'plugin-v*'
   workflow_dispatch:
+    inputs:
+      package:
+        description: Which package to publish
+        required: true
+        type: choice
+        options:
+          - plugin
+          - core
+          - pricing
+      tag:
+        description: npm dist-tag to publish with
+        required: true
+        default: latest
+        type: choice
+        options:
+          - latest
+          - next
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
 
 permissions:
-  id-token: write
   contents: read
+  id-token: write
 
 jobs:
-  publish:
+  core:
+    name: Publish @dsh-stats/core
     runs-on: ubuntu-latest
+    environment: npm
+    if: >-
+      startsWith(github.ref, 'refs/tags/core-v') ||
+      (github.event_name == 'workflow_dispatch' && inputs.package == 'core')
     steps:
-      - uses: actions/checkout@v4
-
+      - uses: actions/checkout@v6
       - uses: pnpm/action-setup@v4
         with:
           version: 10
-
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
-          registry-url: https://registry.npmjs.org/
-          cache: pnpm
-
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
       - name: Install
         run: pnpm install --frozen-lockfile
-
-      - name: Verify
+      - name: Verify @dsh-stats/core
         run: |
-          pnpm -r typecheck
-          pnpm -r test
-          pnpm -r build
+          pnpm --filter @dsh-stats/core typecheck
+          pnpm --filter @dsh-stats/core test
+      - name: Trusted publishing needs a recent npm
+        run: npm install -g npm@latest
+      - name: The tag names the version package.json carries
+        if: github.ref_type == 'tag'
+        run: |
+          VERSION="${GITHUB_REF_NAME#core-v}"
+          DECLARED=$(node -p "require('./packages/core/package.json').version")
+          if [ "$VERSION" != "$DECLARED" ]; then
+            echo "tag core-v$VERSION but package.json says $DECLARED" >&2
+            exit 1
+          fi
+      - name: Publish
+        run: ./.github/scripts/publish-package.sh packages/core "${{ inputs.tag }}"
 
-      - name: Publish @dsh-stats/core
-        run: npm publish --provenance --access public
-        working-directory: packages/core
-        env:
-          NPM_CONFIG_PROVENANCE: true
+  pricing:
+    name: Publish @dsh-stats/pricing
+    runs-on: ubuntu-latest
+    environment: npm
+    if: >-
+      startsWith(github.ref, 'refs/tags/pricing-v') ||
+      (github.event_name == 'workflow_dispatch' && inputs.package == 'pricing')
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Verify @dsh-stats/pricing
+        run: |
+          pnpm --filter @dsh-stats/pricing typecheck
+          pnpm --filter @dsh-stats/pricing test
+      - name: Trusted publishing needs a recent npm
+        run: npm install -g npm@latest
+      - name: The tag names the version package.json carries
+        if: github.ref_type == 'tag'
+        run: |
+          VERSION="${GITHUB_REF_NAME#pricing-v}"
+          DECLARED=$(node -p "require('./packages/pricing/package.json').version")
+          if [ "$VERSION" != "$DECLARED" ]; then
+            echo "tag pricing-v$VERSION but package.json says $DECLARED" >&2
+            exit 1
+          fi
+      - name: Publish
+        run: ./.github/scripts/publish-package.sh packages/pricing "${{ inputs.tag }}"
 
-      - name: Publish @dsh-stats/pricing
-        run: npm publish --provenance --access public
-        working-directory: packages/pricing
-        env:
-          NPM_CONFIG_PROVENANCE: true
-
-      - name: Publish dsh-plugin-stats
-        run: npm publish --provenance --access public
-        working-directory: packages/plugin
-        env:
-          NPM_CONFIG_PROVENANCE: true
+  plugin:
+    name: Publish dsh-plugin-stats
+    runs-on: ubuntu-latest
+    environment: npm
+    if: >-
+      startsWith(github.ref, 'refs/tags/plugin-v') ||
+      (github.event_name == 'workflow_dispatch' && inputs.package == 'plugin')
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Verify dsh-plugin-stats
+        run: |
+          pnpm --filter dsh-plugin-stats typecheck
+          pnpm --filter dsh-plugin-stats test
+      - name: Build the bundle
+        run: pnpm --filter dsh-plugin-stats build
+      - name: Trusted publishing needs a recent npm
+        run: npm install -g npm@latest
+      - name: The tag names the version package.json carries
+        if: github.ref_type == 'tag'
+        run: |
+          VERSION="${GITHUB_REF_NAME#plugin-v}"
+          DECLARED=$(node -p "require('./packages/plugin/package.json').version")
+          if [ "$VERSION" != "$DECLARED" ]; then
+            echo "tag plugin-v$VERSION but package.json says $DECLARED" >&2
+            exit 1
+          fi
+      - name: Publish
+        run: ./.github/scripts/publish-package.sh packages/plugin "${{ inputs.tag }}"

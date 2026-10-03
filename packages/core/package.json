@@ -3,6 +3,24 @@
   "version": "0.1.0",
   "description": "Portable stats core for DeepSeek Harness usage telemetry: zod schemas, sampling math, aggregation, JSONL store. Zero DSH dependencies — reusable by any project.",
   "license": "MIT",
+  "author": "Huakun Shen <huakun.shen@huakun.shen.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HuakunShen/dsh-plugin-stats.git",
+    "directory": "packages/core"
+  },
+  "homepage": "https://github.com/HuakunShen/dsh-plugin-stats/tree/main/packages/core#readme",
+  "bugs": {
+    "url": "https://github.com/HuakunShen/dsh-plugin-stats/issues"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "telemetry",
+    "statistics",
+    "tokens-per-second",
+    "zod",
+    "typescript"
+  ],
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -20,6 +38,10 @@
     "LICENSE",
     "README.md"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run"
@@ -29,7 +51,6 @@
   },
   "devDependencies": {
     "@types/node": "^26.6.4",
-    "tsdown": "^0.23.0",
     "typescript": "^7.0.2",
     "vitest": "^4.0.18"
   }

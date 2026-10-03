@@ -113,7 +113,9 @@ packages/pricing  @dsh-stats/pricing  models.dev snapshot · lookup · USD math 
 packages/plugin   dsh-plugin-stats    Host collectors + routes · Web panel · CLI (the DSH bundle)
 ```
 
-`core` and `pricing` are independently published and reusable by any project.
+`core` and `pricing` are published separately and reusable by any project; both ship TypeScript source
+rather than compiled output, so a consumer's own bundler compiles them. The plugin bundle inlines all of
+them, which is why it declares no runtime dependencies.
 
 ## Development
 
@@ -123,10 +125,22 @@ TypeScript throughout, zod schemas at every boundary, zero `any` (CI-gated).
 pnpm install
 pnpm -r typecheck
 pnpm -r test
-pnpm -r build
+pnpm --filter dsh-plugin-stats build
 ```
 
-Releases publish via GitHub Actions → npm Trusted Publishing with provenance (`publish.yml`).
+## Releasing
+
+One tag ships one package, gated on tests and published to npm with a provenance
+attestation through trusted publishing (OIDC, no token):
+
+```sh
+git tag plugin-v0.1.1 && git push origin plugin-v0.1.1     # dsh-plugin-stats
+git tag core-v0.1.0    && git push origin core-v0.1.0      # @dsh-stats/core
+git tag pricing-v0.1.0 && git push origin pricing-v0.1.0   # @dsh-stats/pricing
+```
+
+The npm-side setup (trusted publisher per package, and how the first version of a new name is
+bootstrapped) is in [PUBLISHING.md](./PUBLISHING.md).
 
 ## License
 

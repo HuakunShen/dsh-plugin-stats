@@ -1,4 +1,5 @@
-# Verifies the whole workspace: types, any-ban, tests, build.
+# Verifies the whole workspace: types, any-ban, tests, build, and the shape of
+# what would be published.
 name: ci
 
 on:
@@ -6,20 +7,24 @@ on:
     branches: [main]
   pull_request:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - uses: pnpm/action-setup@v4
         with:
           version: 10
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
-          cache: pnpm
+          package-manager-cache: false
 
       - name: Install
         run: pnpm install --frozen-lockfile
@@ -38,5 +43,25 @@ jobs:
       - name: Test
         run: pnpm -r test
 
-      - name: Build
-        run: pnpm -r build
+      - name: Build the plugin bundle
+        run: pnpm --filter dsh-plugin-stats build
+
+      # The published plugin inlines everything it needs, so it must declare no
+      # runtime dependencies — otherwise a `workspace:` protocol would leak into
+      # the manifest npm serves and break installs.
+      - name: The published plugin declares no runtime dependencies
+        run: |
+          DEPS=$(node -p "JSON.stringify(require('./packages/plugin/package.json').dependencies ?? {})")
+          if [ "$DEPS" != "{}" ]; then
+            echo "packages/plugin/package.json declares runtime dependencies: $DEPS" >&2
+            echo "the Host and client bundles inline their dependencies; move these to devDependencies" >&2
+            exit 1
+          fi
+          echo 'plugin runtime dependencies: none'
+
+      - name: Pack dry run (all three)
+        run: |
+          for dir in core pricing plugin; do
+            echo "--- packages/$dir ---"
+            (cd "packages/$dir" && npm pack --dry-run)
+          done

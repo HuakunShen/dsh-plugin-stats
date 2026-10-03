@@ -1,12 +1,17 @@
 {
   "name": "dsh-plugin-stats",
   "version": "0.1.0",
-  "description": "General usage stats for DeepSeek Harness: throughput, tokens, cost, tool calls, and activity — charted in the Web UI. TypeScript superset of dsh-plugin-tokspeed.",
+  "description": "General usage stats for DeepSeek Harness: throughput, tokens, cost, tool calls, and activity \u2014 charted in the Web UI. TypeScript superset of dsh-plugin-tokspeed.",
   "license": "MIT",
   "author": "Huakun Shen <huakun.shen@huakun.shen.com>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/HuakunShen/dsh-plugin-stats.git"
+    "url": "git+https://github.com/HuakunShen/dsh-plugin-stats.git",
+    "directory": "packages/plugin"
+  },
+  "homepage": "https://github.com/HuakunShen/dsh-plugin-stats#readme",
+  "bugs": {
+    "url": "https://github.com/HuakunShen/dsh-plugin-stats/issues"
   },
   "keywords": [
     "deepseek-harness",
@@ -18,6 +23,11 @@
     "telemetry"
   ],
   "type": "module",
+  "icon": "./icon.svg",
+  "meta": {
+    "title": "Usage Stats",
+    "description": "Throughput, tokens, cost, tool calls, and activity for every model this Host has used."
+  },
   "main": "./dist/host.mjs",
   "types": "./dist/host.d.ts",
   "exports": {
@@ -33,11 +43,15 @@
   },
   "files": [
     "dist",
+    "icon.svg",
     "cordis.patch.yml",
     "LICENSE",
-    "README.md",
-    "assets"
+    "README.md"
   ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "build": "tsdown && tsc -p tsconfig.dts.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
@@ -45,14 +59,10 @@
     "recompute": "tsx src/cli.ts recompute",
     "export-csv": "tsx src/cli.ts export"
   },
-  "dependencies": {
+  "devDependencies": {
     "@deepseek-ai/schemastery": "^3.18.4",
     "@dsh-stats/core": "workspace:*",
     "@dsh-stats/pricing": "workspace:*",
-    "zod": "^4.6.5"
-  },
-  "devDependencies": {
-    "@deepseek-ai/schemastery": "3.18.4",
     "@types/node": "^26.6.4",
     "happy-dom": "20.14.5",
     "react": "19.3.0",
@@ -60,7 +70,8 @@
     "tsdown": "^0.23.0",
     "tsx": "^4.21.0",
     "typescript": "^7.0.2",
-    "vitest": "^4.0.18"
+    "vitest": "^4.0.18",
+    "zod": "^4.6.5"
   },
   "dsh": {
     "bundle": {
