@@ -1,0 +1,7 @@
+references
+node_modules
+packages/*/dist
+packages/*/node_modules
+.DS_Store
+*.log
+

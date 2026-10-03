@@ -1,0 +1,72 @@
+{
+  "name": "dsh-plugin-stats",
+  "version": "0.1.0",
+  "description": "General usage stats for DeepSeek Harness: throughput, tokens, cost, tool calls, and activity — charted in the Web UI. TypeScript superset of dsh-plugin-tokspeed.",
+  "license": "MIT",
+  "author": "Huakun Shen <huakun.shen@huakun.shen.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HuakunShen/dsh-plugin-stats.git"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh-plugin",
+    "stats",
+    "throughput",
+    "tokens-per-second",
+    "cost",
+    "telemetry"
+  ],
+  "type": "module",
+  "main": "./dist/host.mjs",
+  "types": "./dist/host.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/host.d.mts",
+      "default": "./dist/host.mjs"
+    },
+    "./client": "./dist/client.mjs",
+    "./package.json": "./package.json"
+  },
+  "bin": {
+    "dsh-stats": "./dist/cli.mjs"
+  },
+  "files": [
+    "dist",
+    "cordis.patch.yml",
+    "LICENSE",
+    "README.md",
+    "assets"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "recompute": "tsx src/cli.ts recompute",
+    "export-csv": "tsx src/cli.ts export"
+  },
+  "dependencies": {
+    "@deepseek-ai/schemastery": "^3.18.4",
+    "@dsh-stats/core": "workspace:*",
+    "@dsh-stats/pricing": "workspace:*",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@deepseek-ai/schemastery": "3.18.4",
+    "@types/node": "^26.6.4",
+    "tsdown": "^0.23.0",
+    "tsx": "^4.21.0",
+    "typescript": "^7.0.2",
+    "vitest": "^4.0.18"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": []
+    }
+  }
+}

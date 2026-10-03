@@ -1,0 +1,16 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "noEmit": false,
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "stats-jsx-runtime",
+    "paths": {
+      "stats-jsx-runtime/jsx-runtime": ["./src/client/jsx-runtime.ts"],
+      "stats-jsx-runtime/jsx-dev-runtime": ["./src/client/jsx-runtime.ts"]
+    }
+  },
+  "include": ["src"]
+}

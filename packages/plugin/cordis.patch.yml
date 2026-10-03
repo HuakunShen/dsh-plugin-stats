@@ -1,0 +1,3 @@
+- insert:
+    - id: stats
+      name: dsh-plugin-stats
