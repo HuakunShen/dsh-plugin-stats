@@ -5,7 +5,8 @@ Model price lookup and tokens-to-USD math for LLM usage telemetry — with a bun
 **Zero DSH dependencies** — a plain library, reusable by any project.
 
 Extracted from [`dsh-plugin-stats`](https://github.com/HuakunShen/dsh-plugin-stats), where it turns each
-recorded step into a dollar figure.
+recorded step into a dollar figure. It is a workspace-internal package (`"private": true`, never published
+to npm — the plugin bundle inlines it) so the same pricing math can be reused elsewhere.
 
 ## Source-only package
 

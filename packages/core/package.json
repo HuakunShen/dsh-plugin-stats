@@ -1,8 +1,9 @@
 {
   "name": "@dsh-stats/core",
   "version": "0.1.0",
-  "description": "Portable stats core for DeepSeek Harness usage telemetry: zod schemas, sampling math, aggregation, JSONL store. Zero DSH dependencies — reusable by any project.",
+  "description": "Portable stats core for DeepSeek Harness usage telemetry: zod schemas, sampling math, aggregation, JSONL store. Zero DSH dependencies \u2014 reusable by any project.",
   "license": "MIT",
+  "private": true,
   "author": "Huakun Shen <huakun.shen@huakun.shen.com>",
   "repository": {
     "type": "git",
@@ -32,15 +33,6 @@
     "./csv": "./src/csv.ts",
     "./store": "./src/store.ts",
     "./package.json": "./package.json"
-  },
-  "files": [
-    "src",
-    "LICENSE",
-    "README.md"
-  ],
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",

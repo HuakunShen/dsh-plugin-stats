@@ -5,7 +5,8 @@ zod schemas, the sampling math, aggregation folds, a serialized JSONL store, and
 **Zero DSH dependencies** — it is a plain library, reusable by any project.
 
 Extracted from [`dsh-plugin-stats`](https://github.com/HuakunShen/dsh-plugin-stats), where it is the engine
-behind the Host half; published separately so the same math and schemas can be reused elsewhere.
+behind the Host half. It is a workspace-internal package (`"private": true`, never published to npm — the
+plugin bundle inlines it) so the same math and schemas can be reused elsewhere.
 
 ## Source-only package
 

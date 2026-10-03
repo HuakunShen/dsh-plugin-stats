@@ -113,9 +113,9 @@ packages/pricing  @dsh-stats/pricing  models.dev snapshot · lookup · USD math 
 packages/plugin   dsh-plugin-stats    Host collectors + routes · Web panel · CLI (the DSH bundle)
 ```
 
-`core` and `pricing` are published separately and reusable by any project; both ship TypeScript source
-rather than compiled output, so a consumer's own bundler compiles them. The plugin bundle inlines all of
-them, which is why it declares no runtime dependencies.
+`core` and `pricing` are workspace-internal (`"private": true`, never published) and ship TypeScript
+source; the plugin bundle inlines both — along with `zod` and `@deepseek-ai/schemastery` — which is why
+the published package declares no runtime dependencies.
 
 ## Development
 
@@ -130,13 +130,11 @@ pnpm --filter dsh-plugin-stats build
 
 ## Releasing
 
-One tag ships one package, gated on tests and published to npm with a provenance
+One tag ships the plugin, gated on the workspace's tests and published to npm with a provenance
 attestation through trusted publishing (OIDC, no token):
 
 ```sh
 git tag plugin-v0.1.1 && git push origin plugin-v0.1.1     # dsh-plugin-stats
-git tag core-v0.1.0    && git push origin core-v0.1.0      # @dsh-stats/core
-git tag pricing-v0.1.0 && git push origin pricing-v0.1.0   # @dsh-stats/pricing
 ```
 
 The npm-side setup (trusted publisher per package, and how the first version of a new name is

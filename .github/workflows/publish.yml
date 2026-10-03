@@ -1,41 +1,29 @@
-# Publishes this workspace's three npm packages. One tag runs the gates and
-# ships exactly one artifact — the same release shape the other Harness plugin
-# lines use:
+# Publishes dsh-plugin-stats to npm. One tag runs the gates and ships exactly
+# one artifact — the same release shape the other Harness plugin lines use:
 #
-#   core-v0.1.0     -> @dsh-stats/core      (source-only, nothing to build)
-#   pricing-v0.1.0  -> @dsh-stats/pricing   (source-only, nothing to build)
-#   plugin-v0.1.0   -> dsh-plugin-stats     (self-contained build)
+#   plugin-v0.1.0 -> dsh-plugin-stats
 #
-# Three explicit jobs rather than one matrix: a job-level `if` cannot read the
-# `matrix` context, so a matrix would silently skip every entry. Each job's
-# condition reads only `github` and `inputs`, which are available there.
+# @dsh-stats/core and @dsh-stats/pricing are workspace-internal (`private`,
+# never published): the plugin bundle inlines them, along with zod and
+# @deepseek-ai/schemastery, which is why the shipped package declares no
+# runtime dependencies and has nothing to resolve at install time.
 #
-# Auth is npm trusted publishing (OIDC), not a token: each package's Trusted
+# Auth is npm trusted publishing (OIDC), not a token: the package's Trusted
 # Publisher settings on npmjs.com must name this repository, this workflow
 # file, and the `npm` environment declared below. The OIDC claim is also what
 # produces the public `--provenance` attestation.
 #
 # A name that does not exist on npm yet cannot carry trusted-publisher
-# settings, so its very first version is published manually (see
+# settings, so the very first version is published manually (see
 # PUBLISHING.md); every release after that goes through here.
 name: publish
 
 on:
   push:
     tags:
-      - 'core-v*'
-      - 'pricing-v*'
       - 'plugin-v*'
   workflow_dispatch:
     inputs:
-      package:
-        description: Which package to publish
-        required: true
-        type: choice
-        options:
-          - plugin
-          - core
-          - pricing
       tag:
         description: npm dist-tag to publish with
         required: true
@@ -54,107 +42,42 @@ permissions:
   id-token: write
 
 jobs:
-  core:
-    name: Publish @dsh-stats/core
-    runs-on: ubuntu-latest
-    environment: npm
-    if: >-
-      startsWith(github.ref, 'refs/tags/core-v') ||
-      (github.event_name == 'workflow_dispatch' && inputs.package == 'core')
-    steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          registry-url: https://registry.npmjs.org
-          package-manager-cache: false
-      - name: Install
-        run: pnpm install --frozen-lockfile
-      - name: Verify @dsh-stats/core
-        run: |
-          pnpm --filter @dsh-stats/core typecheck
-          pnpm --filter @dsh-stats/core test
-      - name: Trusted publishing needs a recent npm
-        run: npm install -g npm@latest
-      - name: The tag names the version package.json carries
-        if: github.ref_type == 'tag'
-        run: |
-          VERSION="${GITHUB_REF_NAME#core-v}"
-          DECLARED=$(node -p "require('./packages/core/package.json').version")
-          if [ "$VERSION" != "$DECLARED" ]; then
-            echo "tag core-v$VERSION but package.json says $DECLARED" >&2
-            exit 1
-          fi
-      - name: Publish
-        run: ./.github/scripts/publish-package.sh packages/core "${{ inputs.tag }}"
-
-  pricing:
-    name: Publish @dsh-stats/pricing
-    runs-on: ubuntu-latest
-    environment: npm
-    if: >-
-      startsWith(github.ref, 'refs/tags/pricing-v') ||
-      (github.event_name == 'workflow_dispatch' && inputs.package == 'pricing')
-    steps:
-      - uses: actions/checkout@v6
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 10
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-          registry-url: https://registry.npmjs.org
-          package-manager-cache: false
-      - name: Install
-        run: pnpm install --frozen-lockfile
-      - name: Verify @dsh-stats/pricing
-        run: |
-          pnpm --filter @dsh-stats/pricing typecheck
-          pnpm --filter @dsh-stats/pricing test
-      - name: Trusted publishing needs a recent npm
-        run: npm install -g npm@latest
-      - name: The tag names the version package.json carries
-        if: github.ref_type == 'tag'
-        run: |
-          VERSION="${GITHUB_REF_NAME#pricing-v}"
-          DECLARED=$(node -p "require('./packages/pricing/package.json').version")
-          if [ "$VERSION" != "$DECLARED" ]; then
-            echo "tag pricing-v$VERSION but package.json says $DECLARED" >&2
-            exit 1
-          fi
-      - name: Publish
-        run: ./.github/scripts/publish-package.sh packages/pricing "${{ inputs.tag }}"
-
   plugin:
     name: Publish dsh-plugin-stats
     runs-on: ubuntu-latest
     environment: npm
     if: >-
       startsWith(github.ref, 'refs/tags/plugin-v') ||
-      (github.event_name == 'workflow_dispatch' && inputs.package == 'plugin')
+      github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v6
+
       - uses: pnpm/action-setup@v4
         with:
           version: 10
+
       - uses: actions/setup-node@v6
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
+
       - name: Install
         run: pnpm install --frozen-lockfile
-      - name: Verify dsh-plugin-stats
+
+      # The bundle inlines @dsh-stats/core and @dsh-stats/pricing, so the whole
+      # workspace's types and tests gate this release, not just the plugin's.
+      - name: Verify the workspace
         run: |
-          pnpm --filter dsh-plugin-stats typecheck
-          pnpm --filter dsh-plugin-stats test
+          pnpm -r typecheck
+          pnpm -r test
+
       - name: Build the bundle
         run: pnpm --filter dsh-plugin-stats build
+
       - name: Trusted publishing needs a recent npm
         run: npm install -g npm@latest
+
       - name: The tag names the version package.json carries
         if: github.ref_type == 'tag'
         run: |
@@ -164,5 +87,6 @@ jobs:
             echo "tag plugin-v$VERSION but package.json says $DECLARED" >&2
             exit 1
           fi
+
       - name: Publish
         run: ./.github/scripts/publish-package.sh packages/plugin "${{ inputs.tag }}"

@@ -1,8 +1,9 @@
 {
   "name": "@dsh-stats/pricing",
   "version": "0.1.0",
-  "description": "Model price lookup and tokens-to-USD math with a bundled models.dev snapshot. Zero DSH dependencies — reusable by any project.",
+  "description": "Model price lookup and tokens-to-USD math with a bundled models.dev snapshot. Zero DSH dependencies \u2014 reusable by any project.",
   "license": "MIT",
+  "private": true,
   "author": "Huakun Shen <huakun.shen@huakun.shen.com>",
   "repository": {
     "type": "git",
@@ -27,15 +28,6 @@
   "exports": {
     ".": "./src/index.ts",
     "./package.json": "./package.json"
-  },
-  "files": [
-    "src",
-    "LICENSE",
-    "README.md"
-  ],
-  "publishConfig": {
-    "access": "public",
-    "provenance": true
   },
   "scripts": {
     "typecheck": "tsc --noEmit -p tsconfig.json",
