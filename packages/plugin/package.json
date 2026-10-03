@@ -1,7 +1,7 @@
 {
   "name": "dsh-plugin-stats",
-  "version": "0.1.0",
-  "description": "General usage stats for DeepSeek Harness: throughput, tokens, cost, tool calls, and activity \u2014 charted in the Web UI. TypeScript superset of dsh-plugin-tokspeed.",
+  "version": "0.1.1",
+  "description": "General usage stats for DeepSeek Harness: throughput, tokens, cost, tool calls, and activity — charted in the Web UI. TypeScript superset of dsh-plugin-tokspeed.",
   "license": "MIT",
   "author": "Huakun Shen <huakun.shen@huakun.shen.com>",
   "repository": {
