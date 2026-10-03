@@ -6,7 +6,7 @@ export const GRID_STROKE = 'rgba(128,128,128,.16)'
 export const TICK_FILL = 'rgba(128,128,128,.75)'
 
 export const STYLES = `
-.tps-root { max-width: 1180px; margin: 0 auto; padding: 16px 18px 32px; box-sizing: border-box; }
+.tps-root { max-width: 1180px; height: 100%; margin: 0 auto; padding: 16px 18px 32px; box-sizing: border-box; overflow-y: auto; overflow-x: hidden; }
 .tps-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
 .tps-title { margin: 0; font-size: 16px; }
 .tps-count { font-size: 12px; opacity: .6; }
