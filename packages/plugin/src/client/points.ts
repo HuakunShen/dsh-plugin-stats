@@ -3,8 +3,8 @@
  * zod schemas, and re-derive measurability under the live ceiling — so rows
  * recorded before the Host applied the guard cannot skew the charts.
  */
-import { measuredTps } from '@dsh-stats/core/sampling'
-import { parseSampleLine, type StepSample } from '@dsh-stats/core/schemas'
+import { measuredTps } from '@dsh-stats/core'
+import { parseSampleLine, type StepSample } from '@dsh-stats/core'
 
 export type { StepSample }
 

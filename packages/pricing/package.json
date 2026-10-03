@@ -4,21 +4,18 @@
   "description": "Model price lookup for dsh-plugin-stats: models.dev snapshot, custom overrides, tokens-to-USD. Zero DSH dependencies — reusable by any project.",
   "license": "MIT",
   "type": "module",
-  "main": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.mts",
-      "default": "./dist/index.mjs"
-    }
+    ".": "./src/index.ts",
+    "./package.json": "./package.json"
   },
   "files": [
-    "dist",
+    "src",
     "LICENSE",
     "README.md"
   ],
   "scripts": {
-    "build": "tsdown",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "update": "tsx scripts/update-pricing.ts"

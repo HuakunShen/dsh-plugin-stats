@@ -6,8 +6,8 @@
  * Written with explicit `jsx()` calls (no JSX syntax) so the file stays
  * plain TypeScript; component functions in `*.tsx` files use JSX syntax.
  */
-import { quantile } from '@dsh-stats/core/aggregate'
-import { type ModelSummary, type ToolSummary } from '@dsh-stats/core/schemas'
+import { quantile } from '@dsh-stats/core'
+import { type ModelSummary, type ToolSummary } from '@dsh-stats/core'
 import { jsx } from './jsx-runtime.js'
 import { formatBusy, formatInt, formatMs, formatTps, formatUsd } from './data.js'
 import type { DictKey, Translate } from './i18n.js'

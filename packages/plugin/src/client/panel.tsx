@@ -3,7 +3,7 @@
  * Data: summary.json (aggregates) + samples.jsonl (chart points), both
  * validated with core zod schemas at the boundary.
  */
-import type { Summary } from '@dsh-stats/core/schemas'
+import type { Summary } from '@dsh-stats/core'
 import { BoxPlotChart, HistogramChart, HourlyChart, type BoxEntry } from './Distributions.jsx'
 import { ScatterChart } from './Scatter.jsx'
 import { STYLES } from './chartkit.js'

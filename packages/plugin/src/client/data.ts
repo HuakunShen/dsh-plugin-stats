@@ -3,8 +3,8 @@
  * chart-ready views with the shared core math (`quantile`/`mean`/`std`).
  * The panel never trusts the wire: `SummarySchema.safeParse` gates everything.
  */
-import { mean, quantile, std } from '@dsh-stats/core/aggregate'
-import { SummarySchema, type Summary } from '@dsh-stats/core/schemas'
+import { mean, quantile, std } from '@dsh-stats/core'
+import { SummarySchema, type Summary } from '@dsh-stats/core'
 
 export type { Summary }
 export { mean, quantile, std }

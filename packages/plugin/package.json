@@ -19,17 +19,17 @@
   ],
   "type": "module",
   "main": "./dist/host.mjs",
-  "types": "./dist/host.d.mts",
+  "types": "./dist/host.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/host.d.mts",
+      "types": "./dist/host.d.ts",
       "default": "./dist/host.mjs"
     },
-    "./client": "./dist/client.mjs",
+    "./client": "./dist/client.js",
     "./package.json": "./package.json"
   },
   "bin": {
-    "dsh-stats": "./dist/cli.mjs"
+    "dsh-stats": "./dist/cli.js"
   },
   "files": [
     "dist",
@@ -39,7 +39,7 @@
     "assets"
   ],
   "scripts": {
-    "build": "tsdown",
+    "build": "tsdown && tsc -p tsconfig.dts.json",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
     "recompute": "tsx src/cli.ts recompute",
