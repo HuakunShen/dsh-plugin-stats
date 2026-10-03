@@ -44,7 +44,7 @@ permissions:
 jobs:
   plugin:
     name: Publish dsh-plugin-stats
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment: npm
     if: >-
       startsWith(github.ref, 'refs/tags/plugin-v') ||
@@ -54,7 +54,7 @@ jobs:
 
       # pnpm's version comes from the root package.json `packageManager` field —
       # the action refuses an explicit `version` input when that pin exists.
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v6
         with:

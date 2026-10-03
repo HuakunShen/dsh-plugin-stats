@@ -5,6 +5,9 @@ name: ci
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - LICENSE
   pull_request:
 
 concurrency:
@@ -13,13 +16,13 @@ concurrency:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v6
 
       # pnpm's version comes from the root package.json `packageManager` field —
       # the action refuses an explicit `version` input when that pin exists.
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
       - uses: actions/setup-node@v6
         with:
