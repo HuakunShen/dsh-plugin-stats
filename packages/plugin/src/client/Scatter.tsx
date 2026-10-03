@@ -22,10 +22,9 @@ interface DragStart {
 }
 
 export function ScatterChart(
-  React: ReactRuntime,
-  props: { samples: ChartPoint[]; colors: Map<string, string>; t: Translate },
+  props: { React: ReactRuntime; samples: ChartPoint[]; colors: Map<string, string>; t: Translate },
 ): ReactNode {
-  const { samples, colors, t } = props
+  const { React, samples, colors, t } = props
   const [zoom, setZoom] = React.useState<Zoom | null>(null)
   const [tip, setTip] = React.useState<(TipState & { sample: ChartPoint }) | null>(null)
   const [sel, setSel] = React.useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null)

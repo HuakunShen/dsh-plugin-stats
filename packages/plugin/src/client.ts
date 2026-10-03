@@ -6,7 +6,7 @@
  * through the `slots` service and dictionaries through `locale`.
  * Zero `any`: every boundary value is validated or structurally checked.
  */
-import { DICTS, type DictKey } from './client/i18n.js'
+import { DICTS, type DictKey, type Translate } from './client/i18n.js'
 import { installRuntime } from './client/jsx-runtime.js'
 import { StatsPanel } from './client/panel.js'
 import { loadReact, type ReactRuntime } from './client/react.js'
@@ -80,36 +80,38 @@ function GaugeIcon(React: ReactRuntime): (props: { size?: number }) => unknown {
 }
 
 const loader = (globalThis as unknown as Record<string, unknown>)['__ModuleLoader__']
-if (!isModuleLoader(loader)) {
-  throw new Error('dsh-plugin-stats: __ModuleLoader__ unavailable')
-}
+if (isModuleLoader(loader)) {
+  loader.load({
+    id: 'dsh-plugin-stats',
+    factory(require) {
+      const React = loadReact(require)
+      installRuntime(React)
+      const Icon = GaugeIcon(React)
+      return {
+        inject: ['slots', 'locale'],
+        apply(ctx: ClientContext) {
+          ctx.locale.register(NS, DICTS as unknown as Record<string, Record<string, string>>)
+          const bound = ctx.locale.bind(NS)
+          const t = (key: DictKey, params?: Record<string, string | number>): string =>
+            bound(key, params)
 
-loader.load({
-  id: 'dsh-plugin-stats',
-  factory(require) {
-    const React = loadReact(require)
-    installRuntime(React)
-    const Icon = GaugeIcon(React)
-    return {
-      inject: ['slots', 'locale'],
-      apply(ctx: ClientContext) {
-        ctx.locale.register(NS, DICTS as unknown as Record<string, Record<string, string>>)
-        const bound = ctx.locale.bind(NS)
-        const t = (key: DictKey, params?: Record<string, string | number>): string =>
-          bound(key, params)
-        const endpoints = readEndpoints()
-        ctx.slots.inject('main', () =>
-          ctx.slots.register({ name: 'main', key: PANEL_ID, locale: NS }, () =>
-            StatsPanel(React, { t, endpoints }),
-          ),
-        )
-        ctx.slots.inject('sidebar.panellist', () =>
-          ctx.slots.register(
-            { name: 'sidebar.panellist', id: PANEL_ID, order: 60, label: () => t('panel'), locale: NS },
-            Icon,
-          ),
-        )
-      },
-    }
-  },
-})
+          function Panel(props: Record<string, unknown>): unknown {
+            const endpoints = readEndpoints()
+            const translate = (props?.t as Translate) ?? t
+            return React.createElement(StatsPanel, { React, t: translate, endpoints })
+          }
+
+          ctx.slots.inject('main', () =>
+            ctx.slots.register({ name: 'main', key: PANEL_ID, locale: NS }, Panel),
+          )
+          ctx.slots.inject('sidebar.panellist', () =>
+            ctx.slots.register(
+              { name: 'sidebar.panellist', id: PANEL_ID, order: 60, label: () => t('panel'), locale: NS },
+              Icon,
+            ),
+          )
+        },
+      }
+    },
+  })
+}

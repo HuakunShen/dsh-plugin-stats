@@ -23,7 +23,9 @@ export function installRuntime(next: ReactRuntime): void {
   }
 }
 
-export type ComponentType = (props: Record<string, unknown>) => ReactNode
+export type ComponentType<P = never> = [P] extends [never]
+  ? (props: Record<string, unknown>) => ReactNode
+  : (props: P) => ReactNode
 
 export interface ReactElement {
   readonly __brand: 'stats-react-element'

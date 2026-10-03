@@ -29,7 +29,7 @@ export interface ChangeEventLike {
 }
 
 export interface ReactRuntime {
-  createElement(type: string | ComponentType, props?: Record<string, unknown> | null, ...children: ReactNode[]): ReactElement
+  createElement<P>(type: string | ComponentType<P>, props?: P | null, ...children: ReactNode[]): ReactElement
   useState<S>(initial: S | (() => S)): [S, (next: S | ((current: S) => S)) => void]
   useEffect(effect: () => void | (() => void), deps?: readonly unknown[]): void
   useCallback<T extends (...args: never[]) => unknown>(fn: T, deps?: readonly unknown[]): T

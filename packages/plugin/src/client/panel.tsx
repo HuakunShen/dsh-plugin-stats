@@ -7,7 +7,7 @@ import type { Summary } from '@dsh-stats/core'
 import { BoxPlotChart, HistogramChart, HourlyChart, type BoxEntry } from './Distributions.jsx'
 import { ScatterChart } from './Scatter.jsx'
 import { STYLES } from './chartkit.js'
-import { colorModels, fetchSummary, shortTime } from './data.js'
+import { colorModels, fetchSummary, readEndpoints, shortTime } from './data.js'
 import type { Endpoints } from './data.js'
 import type { DictKey, Locale, Translate } from './i18n.js'
 import { formatDict } from './i18n.js'
@@ -41,23 +41,27 @@ interface SettingsForm {
 }
 
 export function StatsPanel(
-  React: ReactRuntime,
-  props: { t: Translate; endpoints: Endpoints | null },
+  props: { React: ReactRuntime; t: Translate; endpoints: Endpoints | null },
 ): ReactNode {
-  const { t, endpoints } = props
+  const { React, t, endpoints: initialEndpoints } = props
   const [state, setState] = React.useState<PanelState>({ status: 'loading', summary: null, points: [], message: null })
   const [hidden, setHidden] = React.useState<Set<string>>(() => new Set())
   const [settings, setSettings] = React.useState<SettingsForm | null>(null)
   const [ceiling, setCeiling] = React.useState<number>(DEFAULT_CEILING)
   const [settingsStatus, setSettingsStatus] = React.useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
 
+  const endpoints = readEndpoints() ?? initialEndpoints
+  const url = endpoints?.url
+  const summaryUrl = endpoints?.summaryUrl
+  const configUrl = endpoints?.configUrl
+
   const load = React.useCallback(() => {
-    if (endpoints === null) {
+    if (typeof url !== 'string' || typeof summaryUrl !== 'string') {
       setState({ status: 'error', summary: null, points: [], message: 'reload' })
       return
     }
     setState((current) => ({ ...current, status: 'loading' }))
-    Promise.all([fetchSummary(endpoints.summaryUrl), fetchPoints(endpoints.url, ceiling)])
+    Promise.all([fetchSummary(summaryUrl), fetchPoints(url, ceiling)])
       .then(([summary, points]) => setState({ status: 'ready', summary, points, message: null }))
       .catch((error: unknown) => setState({
         status: 'error',
@@ -65,11 +69,11 @@ export function StatsPanel(
         points: [],
         message: error instanceof Error ? error.message : String(error),
       }))
-  }, [endpoints === null ? null : endpoints.summaryUrl, endpoints === null ? null : endpoints.url, ceiling])
+  }, [url, summaryUrl, ceiling])
 
   const loadSettings = React.useCallback(() => {
-    if (endpoints === null) return
-    fetch(endpoints.configUrl, { cache: 'no-store' })
+    if (typeof configUrl !== 'string') return
+    fetch(configUrl, { cache: 'no-store' })
       .then((response) => (response.ok ? (response.json() as Promise<Record<string, unknown>>) : null))
       .then((config) => {
         if (config === null) return
@@ -86,7 +90,7 @@ export function StatsPanel(
         })
       })
       .catch(() => undefined)
-  }, [endpoints === null ? null : endpoints.configUrl])
+  }, [configUrl])
 
   React.useEffect(() => {
     load()
@@ -94,9 +98,9 @@ export function StatsPanel(
   }, [load, loadSettings])
 
   const saveSettings = (): void => {
-    if (endpoints === null || settings === null) return
+    if (typeof configUrl !== 'string' || settings === null) return
     setSettingsStatus('saving')
-    fetch(endpoints.configUrl, {
+    fetch(configUrl, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
@@ -221,19 +225,19 @@ export function StatsPanel(
         <div className="tps-grid">
           <section className="tps-card tps-card-wide">
             <h3 className="tps-card-title">{t('overTime')}</h3>
-            {ScatterChart(React, { samples: visiblePoints, colors, t })}
+            {React.createElement(ScatterChart, { React, samples: visiblePoints, colors, t })}
           </section>
           <section className="tps-card">
             <h3 className="tps-card-title">{t('hist')}</h3>
-            {HistogramChart(React, { samples: visiblePoints })}
+            {React.createElement(HistogramChart, { React, samples: visiblePoints })}
           </section>
           <section className="tps-card">
             <h3 className="tps-card-title">{t('box')}</h3>
-            {BoxPlotChart(React, { entries: boxEntries, samples: visiblePoints })}
+            {React.createElement(BoxPlotChart, { React, entries: boxEntries, samples: visiblePoints })}
           </section>
           <section className="tps-card">
             <h3 className="tps-card-title">{t('hourly')}</h3>
-            {HourlyChart(React, { samples: visiblePoints })}
+            {React.createElement(HourlyChart, { React, samples: visiblePoints })}
           </section>
           <section className="tps-card tps-card-wide">
             <h3 className="tps-card-title">{t('costs')}</h3>

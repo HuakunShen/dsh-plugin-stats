@@ -9,10 +9,9 @@ import { formatTps, mean, quantile, std } from './data.js'
 import type { ChartPoint } from './points.js'
 
 export function HistogramChart(
-  React: ReactRuntime,
-  props: { samples: ChartPoint[] },
+  props: { React: ReactRuntime; samples: ChartPoint[] },
 ): ReactNode {
-  const { samples } = props
+  const { React, samples } = props
   const [tip, setTip] = React.useState<(TipState & { bin: number }) | null>(null)
   const values = samples
     .map((sample) => sample.tps)
@@ -135,10 +134,9 @@ export interface BoxEntry {
 
 /** Horizontal IQR box plot, one row per model: 1.5·IQR whiskers, outlier dots. */
 export function BoxPlotChart(
-  React: ReactRuntime,
-  props: { entries: BoxEntry[]; samples: ChartPoint[] },
+  props: { React: ReactRuntime; entries: BoxEntry[]; samples: ChartPoint[] },
 ): ReactNode {
-  const { entries, samples } = props
+  const { React, entries, samples } = props
   const [tip, setTip] = React.useState<(TipState & { row: string }) | null>(null)
   const rows = entries.filter((entry) => entry.count >= 4)
   if (rows.length === 0) return null
@@ -253,10 +251,9 @@ export function BoxPlotChart(
 
 /** Median tokens/second per hour of day (local time), across visible samples. */
 export function HourlyChart(
-  React: ReactRuntime,
-  props: { samples: ChartPoint[] },
+  props: { React: ReactRuntime; samples: ChartPoint[] },
 ): ReactNode {
-  const { samples } = props
+  const { React, samples } = props
   const [tip, setTip] = React.useState<(TipState & { hour: number }) | null>(null)
   const buckets: number[][] = Array.from({ length: 24 }, () => [])
   for (const sample of samples) {
