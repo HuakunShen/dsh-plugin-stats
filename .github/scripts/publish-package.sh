@@ -47,4 +47,14 @@ fi
 echo "contents of $(basename "$TARBALL"):"
 tar -tzf "$TARBALL" | sed 's|^package/|  |'
 
-npm publish "$TARBALL" --access public --provenance --tag "$DIST_TAG"
+# Provenance is a CI property: the attestation is minted from the GitHub
+# Actions OIDC token, which only exists inside a workflow run. Locally (the
+# first-publish bootstrap in PUBLISHING.md) there is no provider and npm
+# refuses the flag, so it is passed only when $CI says we are inside one.
+PUBLISH_ARGS=(--access public)
+if [ -n "${CI:-}" ]; then
+  PUBLISH_ARGS+=(--provenance)
+fi
+PUBLISH_ARGS+=(--tag "$DIST_TAG")
+
+npm publish "$TARBALL" "${PUBLISH_ARGS[@]}"

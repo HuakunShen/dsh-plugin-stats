@@ -35,7 +35,9 @@ pnpm --dir packages/plugin pack --pack-destination /tmp/dsh-publish
 npm publish /tmp/dsh-publish/dsh-plugin-stats-0.1.0.tgz --access public
 ```
 
-That first publish has no provenance attestation. Every release after it does.
+That first publish has no provenance attestation — and it cannot: the attestation is minted from the
+GitHub Actions OIDC token, which only exists inside a workflow run, so **provenance is a property of
+releasing through the workflow**, not of the package. Every release after this bootstrap carries one.
 
 ### 2. Point the trusted publisher at this repo
 
