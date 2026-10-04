@@ -1,0 +1,178 @@
+{
+  "schema_version": 1,
+  "diagram_type": "dataflow",
+  "meta": {
+    "title": "dsh-plugin-stats — Sample Pipeline",
+    "locale": "en",
+    "output": ".archify/dataflow-sample-pipeline-20261004-063604/sample-pipeline.html",
+    "quality_profile": "showcase",
+    "viewBox": [1068, 688],
+    "repository": {
+      "url": "https://github.com/HuakunShen/dsh-plugin-stats.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "728c5689ee6928a75ee37015bdc91e39a2686207"
+    }
+  },
+  "stages": [
+    { "label": "Harness events" },
+    { "label": "Collect + validate" },
+    { "label": "Sample store" },
+    { "label": "Serve + fold" },
+    { "label": "Consume" }
+  ],
+  "nodes": [
+    {
+      "id": "step-feed",
+      "type": "messagebus",
+      "label": "session/event",
+      "sublabel": "messages · step starts",
+      "stage": 0,
+      "row": 0,
+      "sources": [
+        { "path": "packages/plugin/src/host.ts", "line": 146, "end_line": 166, "label": "session/event handler" },
+        { "path": "packages/plugin/src/harness.ts", "line": 91, "end_line": 105, "label": "AssistantMessage schema" }
+      ]
+    },
+    {
+      "id": "tool-feed",
+      "type": "messagebus",
+      "label": "tools/result",
+      "sublabel": "read-only observation",
+      "stage": 0,
+      "row": 2,
+      "sources": [
+        { "path": "packages/plugin/src/host.ts", "line": 185, "end_line": 192, "label": "tools/result handler" },
+        { "path": "packages/plugin/src/harness.ts", "line": 168, "end_line": 198, "label": "viewToolResult" }
+      ]
+    },
+    {
+      "id": "collectors-step",
+      "type": "backend",
+      "label": "Step Collectors",
+      "sublabel": "validate · derive · price",
+      "stage": 1,
+      "row": 0,
+      "sources": [
+        { "path": "packages/plugin/src/collectors.ts", "line": 37, "end_line": 72, "label": "collectStep" },
+        { "path": "packages/core/src/sampling.ts", "line": 160, "end_line": 199, "label": "sampleOf" },
+        { "path": "packages/pricing/src/lookup.ts", "line": 84, "end_line": 107, "label": "priceSample" }
+      ]
+    },
+    {
+      "id": "collectors-tool",
+      "type": "backend",
+      "label": "Tool Observer",
+      "sublabel": "viewToolResult → sample",
+      "stage": 1,
+      "row": 2,
+      "sources": [
+        { "path": "packages/plugin/src/collectors.ts", "line": 75, "end_line": 94, "label": "collectTool" },
+        { "path": "packages/plugin/src/harness.ts", "line": 168, "end_line": 198, "label": "viewToolResult" }
+      ]
+    },
+    {
+      "id": "store",
+      "type": "database",
+      "label": "samples.jsonl",
+      "sublabel": "step · tool · lifecycle",
+      "tag": "retention 5 MB · 30 d",
+      "stage": 2,
+      "row": 1,
+      "sources": [
+        { "path": "packages/plugin/src/host.ts", "line": 63, "end_line": 68, "label": "samplesFile" },
+        { "path": "packages/core/src/store.ts", "line": 93, "end_line": 147, "label": "append · rotate · sweep" },
+        { "path": "packages/core/src/schemas.ts", "line": 169, "end_line": 174, "label": "Sample union" }
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "backend",
+      "label": "summary.json",
+      "sublabel": "models · tools · activity",
+      "stage": 3,
+      "row": 0,
+      "sources": [
+        { "path": "packages/plugin/src/host.ts", "line": 262, "end_line": 289, "label": "summary route" },
+        { "path": "packages/core/src/aggregate.ts", "line": 193, "end_line": 233, "label": "summarize" }
+      ]
+    },
+    {
+      "id": "csv",
+      "type": "backend",
+      "label": "samples.csv",
+      "sublabel": "step-row projection",
+      "stage": 3,
+      "row": 2,
+      "sources": [
+        { "path": "packages/plugin/src/host.ts", "line": 238, "end_line": 261, "label": "CSV route" },
+        { "path": "packages/core/src/csv.ts", "line": 10, "end_line": 39, "label": "toCsvRow" }
+      ]
+    },
+    {
+      "id": "panel",
+      "type": "frontend",
+      "label": "Stats Panel",
+      "sublabel": "charts · tables · en/zh",
+      "stage": 4,
+      "row": 0,
+      "sources": [
+        { "path": "packages/plugin/src/client/panel.tsx", "line": 43, "end_line": 72, "label": "StatsPanel loads both" },
+        { "path": "packages/plugin/src/client/data.ts", "line": 37, "end_line": 43, "label": "fetchSummary" },
+        { "path": "packages/plugin/src/client/points.ts", "line": 20, "end_line": 42, "label": "fetchPoints" }
+      ]
+    },
+    {
+      "id": "cli",
+      "type": "backend",
+      "label": "dsh-stats CLI",
+      "sublabel": "recompute · export",
+      "stage": 4,
+      "row": 2,
+      "sources": [
+        { "path": "packages/plugin/src/cli.ts", "line": 49, "end_line": 117, "label": "recompute" },
+        { "path": "packages/plugin/src/cli.ts", "line": 119, "end_line": 144, "label": "export" }
+      ]
+    }
+  ],
+  "flows": [
+    { "id": "f1", "from": "step-feed", "to": "collectors-step", "label": "raw payloads", "classification": "process-wide feed", "variant": "emphasis", "route": "straight" },
+    { "id": "f2", "from": "tool-feed", "to": "collectors-tool", "label": "exec + result", "classification": "read-only", "variant": "emphasis", "route": "straight" },
+    { "id": "f3", "from": "collectors-step", "to": "store", "label": "priced step samples", "classification": "zod-validated", "route": "vertical-channel" },
+    { "id": "f4", "from": "collectors-tool", "to": "store", "label": "tool samples", "classification": "zod-validated", "route": "vertical-channel" },
+    { "id": "f5", "from": "store", "to": "summary", "label": "parsed samples", "classification": "skipped lines counted", "route": "vertical-channel" },
+    { "id": "f6", "from": "store", "to": "csv", "label": "step rows", "classification": "17 columns", "route": "vertical-channel" },
+    { "id": "f7", "from": "summary", "to": "panel", "label": "summary.json", "classification": "fetch + safeParse", "variant": "emphasis", "route": "straight" },
+    { "id": "f8", "from": "store", "to": "panel", "label": "samples.jsonl", "classification": "chart points", "fromSide": "right", "toSide": "bottom", "via": [[960, 271]] },
+    { "id": "f9", "from": "cli", "to": "store", "label": "recompute · export", "classification": "backup first · plugin stopped", "variant": "dashed", "route": "bottom-channel" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Pipeline",
+      "items": [
+        "One sample per assistant step / tool call / lifecycle event, across all sessions",
+        "Every payload zod-validated at the boundary — failures skip and count, never throw",
+        "step/start marks step begins; measurability flags windows <250 ms or >maxPlausibleTps"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Store",
+      "items": [
+        "samples.jsonl: one JSON object per line — step · tool · session-join/leave",
+        "Retention bounded two ways: 5 MB rotation to 75% + 30-day age sweep",
+        "session/created + session/disposed markers are written directly by the host half"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Consumers",
+      "items": [
+        "Panel fetches summary.json (aggregates) and samples.jsonl (chart points), both re-validated",
+        "samples.csv serves step rows to spreadsheets and notebooks",
+        "CLI recompute re-derives tps/cost under new rules — backs up first, plugin stopped"
+      ]
+    }
+  ]
+}

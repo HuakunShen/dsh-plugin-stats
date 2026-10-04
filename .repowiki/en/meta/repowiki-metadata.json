@@ -1,0 +1,70 @@
+{
+  "version": "2026-10-03",
+  "language": "en",
+  "last_commit": "728c5689ee6928a75ee37015bdc91e39a2686207",
+  "wiki_items": [
+    {
+      "id": "aeb5a5f1-ced1-4f6c-b62c-47b88d34832a",
+      "title": "System Overview",
+      "path": "content/System Overview.md"
+    },
+    {
+      "id": "043e7f53-8f65-4613-b76f-9a1ba2aa0bd6",
+      "title": "Architecture",
+      "path": "content/Architecture/Architecture.md"
+    },
+    {
+      "id": "f38547fa-5225-4487-ba62-c188af149ca7",
+      "title": "Data Pipeline",
+      "path": "content/Architecture/Data Pipeline.md"
+    },
+    {
+      "id": "39710749-93b1-4547-a074-3cd9ab4220c5",
+      "title": "Core Package",
+      "path": "content/Packages/Core Package.md"
+    },
+    {
+      "id": "71da86ec-29d0-4e66-8353-ad68cd7ee264",
+      "title": "Pricing Package",
+      "path": "content/Packages/Pricing Package.md"
+    },
+    {
+      "id": "a64a5328-33c7-428d-a01a-b8d8c2fa52a0",
+      "title": "Plugin Package",
+      "path": "content/Packages/Plugin Package.md"
+    },
+    {
+      "id": "26e4a980-4b52-4d06-9386-5601e6a53797",
+      "title": "Storage and Retention",
+      "path": "content/Infrastructure/Storage and Retention.md"
+    },
+    {
+      "id": "32c4dd9f-0a1d-43a8-8856-5ab15c2e40fa",
+      "title": "Data Routes",
+      "path": "content/Infrastructure/Data Routes.md"
+    },
+    {
+      "id": "7d7a8bed-fa70-42ce-a298-b8bb5b1e8188",
+      "title": "CI and Release",
+      "path": "content/Infrastructure/CI and Release.md"
+    }
+  ],
+  "knowledge_relations": [
+    { "source": "aeb5a5f1-ced1-4f6c-b62c-47b88d34832a", "target": "043e7f53-8f65-4613-b76f-9a1ba2aa0bd6", "type": "PARENT_CHILD" },
+    { "source": "043e7f53-8f65-4613-b76f-9a1ba2aa0bd6", "target": "f38547fa-5225-4487-ba62-c188af149ca7", "type": "PARENT_CHILD" },
+    { "source": "aeb5a5f1-ced1-4f6c-b62c-47b88d34832a", "target": "39710749-93b1-4547-a074-3cd9ab4220c5", "type": "PARENT_CHILD" },
+    { "source": "aeb5a5f1-ced1-4f6c-b62c-47b88d34832a", "target": "71da86ec-29d0-4e66-8353-ad68cd7ee264", "type": "PARENT_CHILD" },
+    { "source": "aeb5a5f1-ced1-4f6c-b62c-47b88d34832a", "target": "a64a5328-33c7-428d-a01a-b8d8c2fa52a0", "type": "PARENT_CHILD" },
+    { "source": "aeb5a5f1-ced1-4f6c-b62c-47b88d34832a", "target": "26e4a980-4b52-4d06-9386-5601e6a53797", "type": "PARENT_CHILD" },
+    { "source": "aeb5a5f1-ced1-4f6c-b62c-47b88d34832a", "target": "32c4dd9f-0a1d-43a8-8856-5ab15c2e40fa", "type": "PARENT_CHILD" },
+    { "source": "aeb5a5f1-ced1-4f6c-b62c-47b88d34832a", "target": "7d7a8bed-fa70-42ce-a298-b8bb5b1e8188", "type": "PARENT_CHILD" },
+    { "source": "f38547fa-5225-4487-ba62-c188af149ca7", "target": "39710749-93b1-4547-a074-3cd9ab4220c5", "type": "REFERENCE" },
+    { "source": "f38547fa-5225-4487-ba62-c188af149ca7", "target": "71da86ec-29d0-4e66-8353-ad68cd7ee264", "type": "REFERENCE" },
+    { "source": "f38547fa-5225-4487-ba62-c188af149ca7", "target": "a64a5328-33c7-428d-a01a-b8d8c2fa52a0", "type": "REFERENCE" },
+    { "source": "a64a5328-33c7-428d-a01a-b8d8c2fa52a0", "target": "39710749-93b1-4547-a074-3cd9ab4220c5", "type": "REFERENCE" },
+    { "source": "a64a5328-33c7-428d-a01a-b8d8c2fa52a0", "target": "71da86ec-29d0-4e66-8353-ad68cd7ee264", "type": "REFERENCE" },
+    { "source": "39710749-93b1-4547-a074-3cd9ab4220c5", "target": "26e4a980-4b52-4d06-9386-5601e6a53797", "type": "REFERENCE" },
+    { "source": "71da86ec-29d0-4e66-8353-ad68cd7ee264", "target": "32c4dd9f-0a1d-43a8-8856-5ab15c2e40fa", "type": "REFERENCE" },
+    { "source": "7d7a8bed-fa70-42ce-a298-b8bb5b1e8188", "target": "a64a5328-33c7-428d-a01a-b8d8c2fa52a0", "type": "REFERENCE" }
+  ]
+}

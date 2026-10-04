@@ -5,3 +5,16 @@ packages/*/node_modules
 .DS_Store
 *.log
 
+# Archify diagram working area (timestamped request folders, receipts, reruns)
+.archify/
+
+# Archify outputs under .repowiki: track only candidate JSON + rendered HTML,
+# never generated images (png/jpeg/webp/gif/svg/webm exports or captures)
+.repowiki/**/*.png
+.repowiki/**/*.jpg
+.repowiki/**/*.jpeg
+.repowiki/**/*.webp
+.repowiki/**/*.gif
+.repowiki/**/*.svg
+.repowiki/**/*.webm
+

@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "dsh-plugin-stats — Usage Stats Architecture",
+    "locale": "en",
+    "output": ".archify/architecture-dsh-plugin-stats-20261003-223711/dsh-plugin-stats.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/HuakunShen/dsh-plugin-stats.git",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "728c5689ee6928a75ee37015bdc91e39a2686207"
+    }
+  },
+  "components": [
+    {
+      "id": "host",
+      "type": "backend",
+      "label": "DSH Host",
+      "sublabel": "event bus · webServer",
+      "pos": [40, 210],
+      "size": [150, 64],
+      "sources": [
+        { "path": "packages/plugin/src/harness.ts", "line": 48, "end_line": 59, "label": "plugin ctx surface" },
+        { "path": "packages/plugin/src/host.ts", "line": 146, "end_line": 192, "label": "event subscriptions" }
+      ]
+    },
+    {
+      "id": "sampling",
+      "type": "backend",
+      "label": "Sampling Math",
+      "sublabel": "@dsh-stats/core",
+      "pos": [280, 40],
+      "size": [150, 64],
+      "sources": [
+        { "path": "packages/core/src/sampling.ts", "line": 46, "end_line": 85, "label": "streamWindow" },
+        { "path": "packages/core/src/sampling.ts", "line": 160, "end_line": 199, "label": "sampleOf" },
+        { "path": "packages/core/src/sampling.ts", "line": 136, "end_line": 146, "label": "measuredTps" }
+      ]
+    },
+    {
+      "id": "pricing",
+      "type": "backend",
+      "label": "Pricing Lookup",
+      "sublabel": "@dsh-stats/pricing",
+      "pos": [530, 40],
+      "size": [150, 64],
+      "sources": [
+        { "path": "packages/pricing/src/lookup.ts", "line": 84, "end_line": 107, "label": "priceSample" },
+        { "path": "packages/pricing/src/lookup.ts", "line": 40, "end_line": 64, "label": "lookupPrice" },
+        { "path": "packages/pricing/src/lookup.ts", "line": 72, "end_line": 81, "label": "costOf" }
+      ]
+    },
+    {
+      "id": "snapshot",
+      "type": "database",
+      "label": "pricing.json",
+      "sublabel": "models.dev snapshot",
+      "pos": [780, 40],
+      "size": [150, 64],
+      "sources": [
+        { "path": "packages/pricing/src/index.ts", "line": 12, "end_line": 17, "label": "bundled + validated" },
+        { "path": "packages/pricing/src/schema.ts", "line": 25, "end_line": 31, "label": "snapshot schema" }
+      ]
+    },
+    {
+      "id": "collectors",
+      "type": "backend",
+      "label": "Event Collectors",
+      "sublabel": "zod boundary · folds",
+      "pos": [280, 210],
+      "size": [150, 64],
+      "sources": [
+        { "path": "packages/plugin/src/collectors.ts", "line": 102, "end_line": 117, "label": "collectSessionEvent" },
+        { "path": "packages/plugin/src/harness.ts", "line": 112, "end_line": 139, "label": "viewSessionEvent" },
+        { "path": "packages/plugin/src/collectors.ts", "line": 37, "end_line": 72, "label": "collectStep" }
+      ]
+    },
+    {
+      "id": "store",
+      "type": "backend",
+      "label": "JSONL Store",
+      "sublabel": "queue · rotate · sweep",
+      "pos": [530, 210],
+      "size": [150, 64],
+      "sources": [
+        { "path": "packages/core/src/store.ts", "line": 55, "end_line": 72, "label": "createFileStore" },
+        { "path": "packages/core/src/store.ts", "line": 93, "end_line": 122, "label": "append + rotate" },
+        { "path": "packages/core/src/store.ts", "line": 124, "end_line": 147, "label": "sweep" }
+      ]
+    },
+    {
+      "id": "samples",
+      "type": "database",
+      "label": "samples.jsonl",
+      "sublabel": "JSONL · <dsh home>/stats",
+      "pos": [1030, 210],
+      "size": [150, 64],
+      "sources": [
+        { "path": "packages/plugin/src/host.ts", "line": 63, "end_line": 68, "label": "samplesFile" },
+        { "path": "packages/core/src/schemas.ts", "line": 169, "end_line": 174, "label": "Sample union" },
+        { "path": "packages/core/src/schemas.ts", "line": 192, "end_line": 195, "label": "retention defaults" }
+      ]
+    },
+    {
+      "id": "summary",
+      "type": "backend",
+      "label": "Summary Fold",
+      "sublabel": "quantiles · byHour[24]",
+      "pos": [280, 370],
+      "size": [150, 64],
+      "sources": [
+        { "path": "packages/core/src/aggregate.ts", "line": 193, "end_line": 233, "label": "summarize" },
+        { "path": "packages/core/src/aggregate.ts", "line": 118, "end_line": 147, "label": "model summary" }
+      ]
+    },
+    {
+      "id": "routes",
+      "type": "backend",
+      "label": "Data Routes",
+      "sublabel": "/dsh-stats/* · read-only",
+      "pos": [530, 370],
+      "size": [150, 64],
+      "sources": [
+        { "path": "packages/plugin/src/host.ts", "line": 38, "end_line": 41, "label": "route constants" },
+        { "path": "packages/plugin/src/host.ts", "line": 227, "end_line": 344, "label": "register handlers" },
+        { "path": "packages/plugin/src/host.ts", "line": 212, "end_line": 218, "label": "index-inject" }
+      ]
+    },
+    {
+      "id": "cli",
+      "type": "backend",
+      "label": "dsh-stats CLI",
+      "sublabel": "recompute · export",
+      "pos": [780, 370],
+      "size": [150, 64],
+      "sources": [
+        { "path": "packages/plugin/src/cli.ts", "line": 49, "end_line": 117, "label": "recompute" },
+        { "path": "packages/plugin/src/cli.ts", "line": 119, "end_line": 144, "label": "export" }
+      ]
+    },
+    {
+      "id": "panel",
+      "type": "frontend",
+      "label": "Stats Panel",
+      "sublabel": "Web UI sidebar · en/zh",
+      "pos": [530, 530],
+      "size": [150, 64],
+      "sources": [
+        { "path": "packages/plugin/src/client.ts", "line": 82, "end_line": 116, "label": "Module Loader" },
+        { "path": "packages/plugin/src/client/panel.tsx", "line": 43, "end_line": 72, "label": "StatsPanel" },
+        { "path": "packages/plugin/src/client/data.ts", "line": 20, "end_line": 43, "label": "endpoints · fetch" }
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "dsh-plugin-stats bundle (host process)",
+      "wraps": ["sampling", "pricing", "snapshot", "collectors", "store", "summary", "routes", "cli"]
+    },
+    {
+      "kind": "region",
+      "label": "Browser · Harness Web UI",
+      "wraps": ["panel"]
+    }
+  ],
+  "connections": [
+    { "id": "host-to-collectors", "from": "host", "to": "collectors", "label": "events" },
+    { "id": "collectors-to-sampling", "from": "collectors", "to": "sampling", "label": "sampleOf", "fromSide": "top", "toSide": "bottom" },
+    { "id": "collectors-to-pricing", "from": "collectors", "to": "pricing", "label": "priceSample", "fromSide": "top", "toSide": "bottom" },
+    { "id": "pricing-to-snapshot", "from": "pricing", "to": "snapshot", "label": "$/Mtok", "fromSide": "right", "toSide": "left" },
+    { "id": "collectors-to-store", "from": "collectors", "to": "store", "label": "enqueue", "fromSide": "right", "toSide": "left" },
+    { "id": "store-to-samples", "from": "store", "to": "samples", "label": "appends", "fromSide": "right", "toSide": "left" },
+    { "id": "routes-to-store", "from": "routes", "to": "store", "label": "reads", "fromSide": "top", "toSide": "bottom" },
+    { "id": "routes-to-summary", "from": "routes", "to": "summary", "label": "summarize", "fromSide": "left", "toSide": "right" },
+    { "id": "routes-to-panel", "from": "routes", "to": "panel", "label": "serves JSON + CSV", "fromSide": "bottom", "toSide": "top" },
+    { "id": "cli-to-samples", "from": "cli", "to": "samples", "label": "recompute · export", "fromSide": "right", "toSide": "bottom" }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Collection",
+      "items": [
+        "Subscribes Host-wide: session/event (assistant/message, step/start, lifecycle) + tools/result read-only",
+        "Every payload zod-validated at the boundary — failures skip, never throw",
+        "Measurability rule: decode windows <250 ms or >maxPlausibleTps (default 500) are unmeasurable"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Persistence & serving",
+      "items": [
+        "samples.jsonl: one validated JSON object per line, across all sessions",
+        "Retention: 5 MB cap rotating oldest lines to 75% + 30-day age sweep",
+        "Routes read-only same-origin; POST /dsh-stats/config persists config.json (dataDir needs reload)"
+      ]
+    },
+    {
+      "dot": "violet",
+      "title": "Pricing & panel",
+      "items": [
+        "Costs from the bundled models.dev snapshot; customPricing wins; unknown models listed, never free",
+        "Panel: en/zh, Host React runtime via __ModuleLoader__, endpoints via window.__DSH_STATS__",
+        "Everything inlined: the published plugin declares no runtime dependencies"
+      ]
+    }
+  ]
+}
